@@ -145,7 +145,7 @@ def stream_music(id: str) -> dict:
     """
     Nếu chưa có ID bài hát thì hãy gọi tool search_music để tìm kiếm bài hát theo từ khóa.
     Bất cứ khi nào được hỏi về phát nhạc thì hãy gọi tool này để gọi API và lấy link stream của bài hát.
-    streamUrl là link phát nhạc trực tiếp. bạn chi cần đọc link này để phát nhạc.
+    streamUrl là link phát nhạc trực tiếp. bạn chi cần đọc link này sau đó gọi tool self.music.play_song và truyền tham số url vào song_id.
     """
     api_url = f"https://api.lxdata.vn/mcpcore/v1/stream_music?id={id}"
     try:
