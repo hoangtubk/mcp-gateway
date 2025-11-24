@@ -1,6 +1,6 @@
 services:
   mcp-gateway:
-    image: hoangtubk/mcp-gateway:1.0.0
+    image: hoangtubk/mcp-gateway:lastest
     environment:
       MCP_ENDPOINT: "wss://api.xiaozhi.me/mcp/?token=your_token_here"
     restart: always
