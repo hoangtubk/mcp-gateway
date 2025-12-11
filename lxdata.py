@@ -6,6 +6,7 @@ import requests
 import math
 import random
 import os
+import json
 
 logger = logging.getLogger('Calculator')
 
@@ -163,10 +164,10 @@ def stream_music(id: str) -> dict:
     
 @mcp.tool()
 def get_devices() -> dict:
-    """Bất cứ khi nào được hỏi về danh sách thiết bị thông minh thì hãy gọi tool này để gọi API và lấy danh sách tất cả các thiết bị hiện có."""
+    """Bất cứ khi nào được hỏi về danh sách thiết bị thông minh thì hãy gọi tool này
+      để gọi API và lấy danh sách tất cả các thiết bị hiện có."""
     api_url = f"{base_url}/iotcore/v1.0/get_devices"
     try:
-        # Chỉ log username để tránh lộ secret
         logger.info(f'Calling get_devices with user: {basic_auth_user}')
 
         resp = requests.get(
@@ -182,6 +183,41 @@ def get_devices() -> dict:
 
     except requests.RequestException as e:
         logger.error(f"Failed to fetch all devices from {api_url}: {e}")
+        return {"success": False, "error": str(e)}
+    
+@mcp.tool()
+def control_device(device_id: str, command: str) -> dict:
+    """Bất cứ khi nào được yêu cầu điều khiển thiết bị thông minh thì hãy gọi tool này
+      để gọi API và điều khiển thiết bị theo device_id và command truyền vào.
+      device_id: là ID của thiết bị cần điều khiển (lấy từ tool get_devices)
+      command: là lệnh điều khiển thiết bị được đọc từ file device_config.json tương ứng với loại thiết bị.
+      Ví dụ 1: loại thiết bị có device_type là 'cz' thì lệnh command sẽ là [ { "code": "switch_1", "value": true } ] để bật.
+      Ví dụ 2: loại thiết bị có device_type là 'infrared_tv' thì lệnh command sẽ là [ { "code": "Power"} ] để bật / tắt.
+      Loại thiết bị và cách lấy lệnh điều khiển sẽ được hướng dẫn cụ thể trong file device_config.json.
+      Lưu ý: không thay đổi chữ hoa, chữ thường trong code và giá trị."""
+    api_url = f"{base_url}/iotcore/v1.0/control_device/{device_id}/command"
+    payload = json.loads(command)
+    # payload = {
+    #     "device_id": device_id,
+    #     "command": command
+    # }
+    try:
+        logger.info(f'Calling control_device with user: {basic_auth_user}, device_id: {device_id}, command: {command}')
+
+        resp = requests.post(
+            api_url,
+            json=payload,
+            auth=(basic_auth_user, basic_auth_pass),
+            timeout=5
+        )
+        resp.raise_for_status()
+
+        result = resp.json()
+        logger.info(f"control_device: result: {result}")
+        return {"success": True, "result": result}
+
+    except requests.RequestException as e:
+        logger.error(f"Failed to control device from {api_url}: {e}")
         return {"success": False, "error": str(e)}
 
 # Start the server

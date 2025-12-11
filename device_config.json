@@ -1,0 +1,132 @@
+[
+    {
+        "device_type": "infrared_tv",
+        "commands": [
+            {
+                "type": "POWER_ON",
+                "data": [
+                    {
+                        "code": "Power"
+                    }
+                ]
+            },
+            {
+                "type": "POWER_OFF",
+                "data": [
+                    {
+                        "code": "Power"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "device_type": "cz",
+        "commands": [
+            {
+                "type": "POWER_ON",
+                "data": [
+                    {
+                        "code": "switch_1",
+                        "value": true
+                    }
+                ]
+            },
+            {
+                "type": "POWER_OFF",
+                "data": [
+                    {
+                        "code": "switch_1",
+                        "value": false
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "device_type": "infrared_fan",
+        "commands": [
+            {
+                "type": "POWER_ON / CHANGE_SPEED",
+                "data": [
+                    {
+                        "code": "Speed"
+                    }
+                ]
+            },
+            {
+                "type": "POWER_OFF",
+                "data": [
+                    {
+                        "code": "PowerOff"
+                    }
+                ]
+            },
+            {
+                "type": "SWING_ON / SWING_OFF",
+                "data": [
+                    {
+                        "code": "Swing"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "device_type": "infrared_ac",
+        "commands": [
+            {
+                "type": "POWER_ON",
+                "data": [
+                    {
+                        "code": "PowerOn"
+                    }
+                ]
+            },
+            {
+                "type": "POWER_OFF",
+                "data": [
+                    {
+                        "code": "PowerOff"
+                    }
+                ]
+            },
+            {
+                "type": "SET_TEMPERATURE",
+                "data": [
+                    {
+                        "code": "T",
+                        "value": 16
+                    }
+                ]
+            },
+            {
+                "type": "CHANGE_MODE_TO_COOL",
+                "data": [
+                    {
+                        "code": "Mode",
+                        "value": 3
+                    }
+                ]
+            },
+            {
+                "type": "CHANGE_MODE_TO_HEAT",
+                "data": [
+                    {
+                        "code": "Mode",
+                        "value": 4
+                    }
+                ]
+            },
+            {
+                "type": "SET_WIND_SPEED",
+                "data": [
+                    {
+                        "code": "F",
+                        "value": 1
+                    }
+                ]
+            }
+        ]
+    }
+]
