@@ -16,7 +16,6 @@ if sys.platform == 'win32':
 
 # Create an MCP server
 mcp = FastMCP("lxdata")
-base_url = os.environ.get("API_BASE_URL", "")
 
 # Add an addition tool
 @mcp.tool()
@@ -161,6 +160,33 @@ def stream_music(id: str) -> dict:
     except requests.RequestException as e:
         logger.error(f"Failed to fetch music stream from {api_url}: {e}")
         return {"success": False, "error": str(e)}
+    
+@mcp.tool()
+def get_devices() -> dict:
+    """Bất cứ khi nào được hỏi về danh sách thiết bị thông minh thì hãy gọi tool này để gọi API và lấy danh sách tất cả các thiết bị hiện có."""
+    api_url = f"{base_url}/iotcore/v1.0/get_devices"
+    try:
+        # Chỉ log username để tránh lộ secret
+        logger.info(f'Calling get_devices with user: {basic_auth_user}')
+
+        resp = requests.get(
+            api_url,
+            auth=(basic_auth_user, basic_auth_pass),
+            timeout=5
+        )
+        resp.raise_for_status()
+
+        result = resp.json()
+        logger.info(f"get_devices: result: {result}")
+        return {"success": True, "result": result}
+
+    except requests.RequestException as e:
+        logger.error(f"Failed to fetch all devices from {api_url}: {e}")
+        return {"success": False, "error": str(e)}
+
 # Start the server
 if __name__ == "__main__":
+    base_url = os.environ.get("API_BASE_URL", "")
+    basic_auth_user = os.environ.get("BasicAuthOptions__Username", "")
+    basic_auth_pass = os.environ.get("BasicAuthOptions__Password", "")
     mcp.run(transport="stdio")
