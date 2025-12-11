@@ -3,6 +3,9 @@ from mcp.server.fastmcp import FastMCP
 import sys
 import logging
 import requests
+import math
+import random
+import os
 
 logger = logging.getLogger('Calculator')
 
@@ -11,11 +14,9 @@ if sys.platform == 'win32':
     sys.stderr.reconfigure(encoding='utf-8')
     sys.stdout.reconfigure(encoding='utf-8')
 
-import math
-import random
-
 # Create an MCP server
 mcp = FastMCP("lxdata")
+base_url = os.environ.get("API_BASE_URL", "")
 
 # Add an addition tool
 @mcp.tool()
@@ -29,7 +30,7 @@ def calculator(python_expression: str) -> dict:
 @mcp.tool()
 def weather(location: str, date: str) -> dict:
     """Bất kỳ khi nào được hỏi về thời tiết thì hãy đọc lại kết quả bằng cách gọi API, lưu ý đọc rõ nhiệt độ kèm theo tình trạng thời tiết hiện tại. kèm theo một câu đùa vui về thời tiết."""
-    api_url = f"https://api.lxdata.vn/mcpcore/v1/get_weather?location={location}&date={date}"
+    api_url = f"{base_url}/mcpcore/v1/get_weather?location={location}&date={date}"
 
     try:
         resp = requests.get(api_url, timeout=5)
@@ -54,7 +55,7 @@ def lottery(region:str = "mien-bac-xsmb", date: str = None) -> dict:
     1. chỉ đọc giải đặc biệt (ĐB) nếu không được yêu cầu đọc đầy đủ tất cả. 
     2. Đọc lần lượt từng chữ số
     Hỏi thêm bạn có muốn mình dự đoán kết quả xổ số ngày mai không? nếu câu trả lời là có thì đưa ra câu trả lời bằng cách gọi tool guess_lottery"""
-    api_url = f"https://api.lxdata.vn/mcpcore/v1/get_lottery?region={region}&date={date}"
+    api_url = f"{base_url}/mcpcore/v1/get_lottery?region={region}&date={date}"
     try:
         resp = requests.get(api_url, timeout=5)
         resp.raise_for_status()
@@ -85,7 +86,7 @@ def coin_price(coin_id: str, currency: str = "usd") -> dict:
     currency là loại tiền tệ muốn quy đổi (ví dụ: usd, vnd) mặc định là 'usd'.
     """
     
-    api_url = f"https://api.lxdata.vn/mcpcore/v1/get_coin_price?coinId={coin_id}&currency={currency}"
+    api_url = f"{base_url}/mcpcore/v1/get_coin_price?coinId={coin_id}&currency={currency}"
     try:
         resp = requests.get(api_url, timeout=5)
         resp.raise_for_status()
@@ -108,7 +109,7 @@ def au_price(trademark: str, type: str = "trơn") -> dict:
     4. Luôn đọc giá trị hàng nghìn, hàng triệu, hàng trăm nghìn,... VND là Việt Nam Đồng.
 
     """
-    api_url = f"https://api.lxdata.vn/mcpcore/v1/get_au_price?trademark={trademark}&type={type}"
+    api_url = f"{base_url}/mcpcore/v1/get_au_price?trademark={trademark}&type={type}"
     try:
         resp = requests.get(api_url, timeout=5)
         resp.raise_for_status()
@@ -127,7 +128,7 @@ def search_music(keyword: str) -> dict:
     Bất cứ khi nào được hỏi về tìm kiếm nhạc thì hãy gọi tool này để gọi API và đọc kết quả bài hát.
     Sau đó lấy ID của bài hát đầu tiên để gọi tool stream_music.
     """
-    api_url = f"https://api.lxdata.vn/mcpcore/v1/search_music?keyword={keyword}"
+    api_url = f"{base_url}/mcpcore/v1/search_music?keyword={keyword}"
     try:
         resp = requests.get(api_url, timeout=5)
         resp.raise_for_status()
@@ -147,7 +148,8 @@ def stream_music(id: str) -> dict:
     Bất cứ khi nào được hỏi về phát nhạc thì hãy gọi tool này để gọi API và lấy link stream của bài hát.
     streamUrl là link phát nhạc trực tiếp. bạn chi cần đọc link này sau đó gọi tool self.music.play_song và truyền tham số url vào song_id.
     """
-    api_url = f"https://api.lxdata.vn/mcpcore/v1/stream_music?id={id}"
+
+    api_url = f"{base_url}/mcpcore/v1/stream_music?id={id}"
     try:
         resp = requests.get(api_url, timeout=5)
         resp.raise_for_status()

@@ -3,4 +3,5 @@ services:
     image: hoangtubk/mcp-gateway:lastest
     environment:
       MCP_ENDPOINT: "wss://api.xiaozhi.me/mcp/?token=your_token_here"
+      API_BASE_URL: "http://your_api_url_here:port"
     restart: always
