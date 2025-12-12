@@ -186,17 +186,69 @@ def get_devices() -> dict:
         return {"success": False, "error": str(e)}
     
 @mcp.tool()
-def control_device(device_id: str, command: str) -> dict:
+def control_device(device_id: str, device_type: str, command: str, options:dict=[]) -> dict:
     """Bất cứ khi nào được yêu cầu điều khiển thiết bị thông minh thì hãy gọi tool này
       để gọi API và điều khiển thiết bị theo device_id và command truyền vào.
       device_id: là ID của thiết bị cần điều khiển (lấy từ tool get_devices)
-      command: là lệnh điều khiển thiết bị được đọc từ file device_config.json tương ứng với loại thiết bị.
-      Ví dụ 1: loại thiết bị có device_type là 'cz' thì lệnh command sẽ là [ { "code": "switch_1", "value": true } ] để bật.
-      Ví dụ 2: loại thiết bị có device_type là 'infrared_tv' thì lệnh command sẽ là [ { "code": "Power"} ] để bật / tắt.
-      Loại thiết bị và cách lấy lệnh điều khiển sẽ được hướng dẫn cụ thể trong file device_config.json.
+      device_type: là loại thiết bị cần điều khiển (lấy từ tool get_devices)
+      options: là tùy chọn bổ sung cho lệnh điều khiển (nếu có) bao gồm:
+        temperature: nhiệt độ (dùng cho điều hòa) trong khoảng từ 16 đến 30 độ C
+        wind_speed: tốc độ gió (dùng cho điều hòa) trong khoảng từ 0 đến 3 (trong đó 0 là tự động) 
+        mode: chế độ (dùng cho điều hòa) gồm: 0: Cool, 1: Hot, 2: Auto, 3: Fan, 4: Dehumy
+      command: là lệnh điều khiển thiết bị được đọc từ file device_config.json tùy vào type lệnh điều khiển. bao gồm:
+        POWER_ON: lệnh bật thiết bị
+        POWER_OFF: lệnh tắt thiết bị
+        SWING_ON: lệnh bật chế độ đảo gió (dùng cho điều hòa)
+        SWING_OFF: lệnh tắt chế độ đảo gió (dùng cho điều
+        CHANGE_SPEED: lệnh thay đổi tốc độ quạt (dùng cho quạt)
+        SET_TEMPERATURE: lệnh đặt nhiệt độ (dùng cho điều hòa)
+        SET_WIND_SPEED: lệnh đặt tốc độ quạt (dùng cho điều hòa)
+        SET_MODE: lệnh đặt chế độ (dùng cho điều hòa)
       Lưu ý: không thay đổi chữ hoa, chữ thường trong code và giá trị."""
+    
+    logger.info(f'Received control_device with user: {basic_auth_user}, device_id: {device_id}, command: {command}', extra={"options": options})
+    # Đọc file device_config.json để lấy lệnh điều khiển tương ứng
+    # Tìm lệnh trong file device_config.json dựa trên device_type và command type
+    with open('device_config.json', 'r', encoding='utf-8') as f:
+        device_configs = json.load(f)
+    for device in device_configs:
+        if device['device_type'] == device_type:
+            # Nếu device_type = "infrared_ac" và command = "SET_TEMPERATURE", cần thêm giá trị nhiệt độ từ options vào lệnh
+            if device_type == "infrared_ac" and command == "SET_TEMPERATURE" and "temperature" in options:
+                for cmd in device['commands']:
+                    if command in cmd['type']:
+                        # Cập nhật giá trị nhiệt độ trong lệnh
+                        for data in cmd['data']:
+                            if data['code'] == "T":
+                                data['value'] = options['temperature']
+                        command_json = json.dumps(cmd['data'])
+                        break
+            elif device_type == "infrared_ac" and command == "SET_WIND_SPEED" and "wind_speed" in options:
+                for cmd in device['commands']:
+                    if command in cmd['type']:
+                        # Cập nhật giá trị tốc độ gió trong lệnh
+                        for data in cmd['data']:
+                            if data['code'] == "F":
+                                data['value'] = options['wind_speed']
+                        command_json = json.dumps(cmd['data'])
+                        break
+            elif device_type == "infrared_ac" and command == "SET_MODE" and "mode" in options:
+                for cmd in device['commands']:
+                    if command in cmd['type']:
+                        # Cập nhật giá trị chế độ trong lệnh
+                        for data in cmd['data']:
+                            if data['code'] == "M":
+                                data['value'] = options['mode']
+                        command_json = json.dumps(cmd['data'])
+                        break
+            else:
+                for cmd in device['commands']:
+                    if command in cmd['type'] :
+                        command_json = json.dumps(cmd['data'])
+                        break
+
     api_url = f"{base_url}/iotcore/v1.0/control_device/{device_id}/command"
-    payload = json.loads(command)
+    payload = json.loads(command_json)
     # payload = {
     #     "device_id": device_id,
     #     "command": command

@@ -96,25 +96,16 @@
                 "data": [
                     {
                         "code": "T",
-                        "value": 16
+                        "value": 23
                     }
                 ]
             },
             {
-                "type": "CHANGE_MODE_TO_COOL",
+                "type": "SET_MODE",
                 "data": [
                     {
-                        "code": "Mode",
-                        "value": 3
-                    }
-                ]
-            },
-            {
-                "type": "CHANGE_MODE_TO_HEAT",
-                "data": [
-                    {
-                        "code": "Mode",
-                        "value": 4
+                        "code": "M",
+                        "value": 0
                     }
                 ]
             },
@@ -123,7 +114,7 @@
                 "data": [
                     {
                         "code": "F",
-                        "value": 1
+                        "value": 0
                     }
                 ]
             }
